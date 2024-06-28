@@ -7,6 +7,7 @@ let itemPrix = document.getElementById("price");
 let itemDescription = document.getElementById("description");
 let itemColor = document.getElementById("colors");
 let button = document.getElementById("addToCart");
+let arrayStringed =[]
 
 //::::::::::Afficher le produit choisi précédemment::::::::::::::::://
 
@@ -59,20 +60,29 @@ async function fetchProduct(){
 
             //Vérifier que l'artile ne soit pas déjà présent dans le panier, et que les quantité et couleur soient bien choisies
 
-            let arrayId = array.map(a => a.color);
+            const indexID = array.findIndex((obj) => obj.id === objet.id);
+            const indexColor = array.findIndex((obj) => obj.color === objet.color)
 
-            if (arrayId.includes(color) == true){
-                alert("Cet objet est déjà dans votre panier!");
-            }else if (quantity == 0){
-                alert("Merci de chosir une quantité.");
-            }else if (color == ""){
-                alert("Merci de chosir une couleur.");
-            }
-            else{
-                array.push(objet);
-                let arrayStringed = JSON.stringify(array);
-                localStorage.setItem("array", arrayStringed);
-                window.location.replace("cart.html");
+            //renvoie l'index du premier élément du tableau qui satisfait une condition donnée par une fonction
+
+            switch(true){
+                case(indexID !== -1 && indexColor !== -1 && quantity !== 0 ):
+                    array.splice(indexID, 1, objet);          
+                    arrayStringed = JSON.stringify(array);
+                    localStorage.setItem("array", arrayStringed);
+                    window.location.replace("cart.html");
+                    break;
+                case(quantity === 0):
+                    alert("Merci de chosir une quantité.");
+                    break;
+                case(color == ""):
+                    alert("Merci de chosir une couleur.");
+                    break;
+                default:
+                    array.push(objet);
+                    arrayStringed = JSON.stringify(array);
+                    localStorage.setItem("array", arrayStringed);
+                    window.location.replace("cart.html");
             }
         })
     } 

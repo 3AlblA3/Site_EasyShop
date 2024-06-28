@@ -9,6 +9,7 @@ let totalPriceSpan = document.getElementById("totalPrice");
 
 let html = "";
 
+
 //::::::::: Afficher les données du local storage dans le DOM ::::::::://
 
 async function cart() {
@@ -53,7 +54,7 @@ async function cart() {
     totalQuantitySpan.innerHTML = `${totalQuantity}`;
 
     let totalPrice = arrayParsed.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-    // On parcourt le tableau d'objet en additionnat les sous totaux à chaque fois
+    // On parcourt le tableau d'objet en additionnat les sous-totaux à chaque fois
     totalPriceSpan.innerHTML = `${totalPrice}`;
   }
 
@@ -63,9 +64,9 @@ async function cart() {
 
   function deleteItemFunc() {
     let deleteItems = document.querySelectorAll(".deleteItem"); // QuerySelectorAll pour tous les boutons supprimer 
-    deleteItems.forEach((deleteItem, index) => { // forEach pour boucler sur tous les éléments
+    deleteItems.forEach((deleteItem, i) => { // forEach pour boucler sur tous les éléments
       deleteItem.addEventListener("click", () => {
-        arrayParsed.splice(index, 1); // Supprime l'élément du tableau d'objet du local storage
+        arrayParsed.splice(i, 1); // Supprime l'élément du tableau d'objet du local storage
         arrayJSON = JSON.stringify(arrayParsed);
         localStorage.setItem("array", arrayJSON);
         deleteItem.closest("article").remove();
