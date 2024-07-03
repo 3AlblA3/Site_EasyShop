@@ -34,7 +34,6 @@ async function fetchProduct(){
             let color = itemColor.value
             let quantityStringed = document.getElementById("quantity").value
             let quantity = parseInt(quantityStringed)
-            let price = data.price
             let description = data.description
             let img = data.imageUrl
            class Item{
@@ -43,7 +42,6 @@ async function fetchProduct(){
                     this.id = id;
                     this.quantity = quantity;
                     this.color = color;
-                    this.price = price;
                     this.description = description; 
                     this.img = img;
                 }

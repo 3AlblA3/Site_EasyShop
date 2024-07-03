@@ -1,8 +1,10 @@
 let arrayJSON = localStorage.getItem("array");
 console.log(arrayJSON)
 let arrayParsed = JSON.parse(arrayJSON);
-let URL = "http://localhost:3000/api/products/order";
+let URLOrder = "http://localhost:3000/api/products/order";
 console.log(arrayParsed)
+let URL = "http://localhost:3000/api/products/";
+
 
 
 
@@ -19,9 +21,27 @@ let html = "";
 
 async function cart() {
 
-  async function displayItems() {
+  try{
 
-    for (let i of arrayParsed) {
+    const response = await fetch(URL);
+    const data = await response.json();
+    
+    //On cherche les prix dans l'API, et on les remets dans notre tableau d'objets 
+
+    arrayParsed.forEach(i => {
+      let fetchedProduct = data.find(fetchedProduct => fetchedProduct._id === i.id);
+      if (fetchedProduct) {
+        i.price = product.price;
+      }
+    });
+
+
+
+
+    async function displayItems() {
+
+      for (let i of arrayParsed) {
+    
       html = `<article class="cart__item" data-id="${i.id}" data-color="${i.color}">
                 <div class="cart__item__img">
                   <img src="${i.img}" alt="Photographie d'un canapé">
@@ -44,68 +64,73 @@ async function cart() {
                 </div>
               </article>`;
       cartItems.innerHTML += html;
+
+      }
     }
-  }
+   
 
-  await displayItems();
+    await displayItems();
 
-  console.table(arrayParsed);
+    console.table(arrayParsed);
 
   
 
-  // Afficher le total des articles et des prix
+    // Afficher le total des articles et des prix
 
-  function displayTotals() {
-    let totalQuantity = arrayParsed.reduce((acc, i) => acc + i.quantity, 0); 
-    // On parcourt le tableau d'objet en cumulant les quantités //
-    totalQuantitySpan.innerHTML = `${totalQuantity}`;
+    function displayTotals() {
+      let totalQuantity = arrayParsed.reduce((acc, i) => acc + i.quantity, 0); 
+      // On parcourt le tableau d'objet en cumulant les quantités //
+      totalQuantitySpan.innerHTML = `${totalQuantity}`;
 
-    let totalPrice = arrayParsed.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-    // On parcourt le tableau d'objet en additionnat les sous-totaux à chaque fois
-    totalPriceSpan.innerHTML = `${totalPrice}`;
-  }
+      let totalPrice = arrayParsed.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+      // On parcourt le tableau d'objet en additionnat les sous-totaux à chaque fois
+      totalPriceSpan.innerHTML = `${totalPrice}`;
+    }
 
-  displayTotals();
+    displayTotals();
 
-  // Suppression
+    // Suppression
 
-  function deleteItemFunc() {
-    let deleteItems = document.querySelectorAll(".deleteItem"); // QuerySelectorAll pour tous les boutons supprimer 
-    deleteItems.forEach((deleteItem, i) => { // forEach pour boucler sur tous les éléments
-      deleteItem.addEventListener("click", () => {
-        arrayParsed.splice(i, 1); // Supprime l'élément du tableau d'objet du local storage
-        arrayJSON = JSON.stringify(arrayParsed);
-        localStorage.setItem("array", arrayJSON);
-        deleteItem.closest("article").remove();
-        displayTotals();
+    function deleteItemFunc() {
+      let deleteItems = document.querySelectorAll(".deleteItem"); // QuerySelectorAll pour tous les boutons supprimer 
+      deleteItems.forEach((deleteItem, i) => { // forEach pour boucler sur tous les éléments
+        deleteItem.addEventListener("click", () => {
+          arrayParsed.splice(i, 1); // Supprime l'élément du tableau d'objet du local storage
+          arrayJSON = JSON.stringify(arrayParsed);
+          localStorage.setItem("array", arrayJSON);
+          deleteItem.closest("article").remove();
+          displayTotals();
+        });
       });
-    });
-  }
+    }
 
-  deleteItemFunc();
+    deleteItemFunc();
 
-  // Modification
+   // Modification
 
-  function modifyQuantity() {
-    let itemQuantities = document.querySelectorAll(".itemQuantity");
+    function modifyQuantity() {
+      let itemQuantities = document.querySelectorAll(".itemQuantity");
 
-    itemQuantities.forEach((itemQuantity, i) => { // Boucle forEach pour faire la fonction pour chaque article
-      itemQuantity.addEventListener("change", (event) => {
-        let newQuantity = parseInt(event.target.value); // Récupérer la valeur de l'input et la convertir en number
-        arrayParsed[i].quantity = newQuantity; // Placer la nouvelle valeur et la remplacer dans le tableau d'objet
-        let arrayJSON = JSON.stringify(arrayParsed);
-        localStorage.setItem("array", arrayJSON);
+      itemQuantities.forEach((itemQuantity, i) => { // Boucle forEach pour faire la fonction pour chaque article
+       itemQuantity.addEventListener("change", (event) => {
+          let newQuantity = parseInt(event.target.value); // Récupérer la valeur de l'input et la convertir en number
+          arrayParsed[i].quantity = newQuantity; // Placer la nouvelle valeur et la remplacer dans le tableau d'objet
+          let arrayJSON = JSON.stringify(arrayParsed);
+          localStorage.setItem("array", arrayJSON);
 
-        // Mettre à jour l'affichage de la quantité dans le <p>
-        let pQuantity = itemQuantity.closest(".cart__item__content__settings__quantity").querySelector("p");
-        pQuantity.innerHTML = `Qté : ${newQuantity}`;
+          // Mettre à jour l'affichage de la quantité dans le <p>
+          let pQuantity = itemQuantity.closest(".cart__item__content__settings__quantity").querySelector("p");
+          pQuantity.innerHTML = `Qté : ${newQuantity}`;
 
-        displayTotals();
-      });
-    });
-  }
-
+          displayTotals();
+        });
+     });
+   }
   modifyQuantity();
+  }
+  catch(error){
+    console.error("Erreur lors de la récupération des données :", error);
+  }
 }
 
 cart();
@@ -141,17 +166,19 @@ const form = document.querySelector("form")
     if(resultatMail && resultatText == true){
 
       // Mettre les valeurs récupérées dans un objet //
-
       
       const formData = new FormData(form);
       const formValue  = [...formData.entries()];
       console.log(formValue);
+
+      // Convertir le tableau de données en obj
+
       const entries = new Map (formValue);
       let contact = Object.fromEntries(entries);
 
       let products = arrayParsed.map(i => i.id);
-    
       console.log(products);
+   
       let order = {
         "contact": contact, 
         "products": products
@@ -166,7 +193,7 @@ const form = document.querySelector("form")
 
 
       try {
-        let response = await fetch(URL, {
+        let PostResponse = await fetch(URLOrder, {
           method: "POST",
           body: JSON.stringify(order),
           headers: {
@@ -175,10 +202,10 @@ const form = document.querySelector("form")
 
         });
     
-        if (!response.ok) {
+        if (!PostResponse.ok) {
           throw new Error(`Erreur HTTP ! Statut : ${response.status}`);
         }
-        let responseData = await response.json();
+        let responseData = await PostResponse.json();
         let orderId = responseData.orderId;
         console.log(orderId)
         let orderIdStringed = JSON.stringify(orderId)
