@@ -112,7 +112,7 @@ cart();
 
                 //:::::::::::::::::::::::::::::: Partie 3: le formulaire ::::::::::::::::::::::::::::://
 
-let form = document.querySelector("form")
+const form = document.querySelector("form")
 
 // Fonction d'envoie des données du formulaire et post de l'API
 
@@ -120,11 +120,14 @@ let form = document.querySelector("form")
 
     event.preventDefault();
 
+    if(arrayJSON == null){
+      alert("Votre panier est vide")
+    }
+
     // On récupére les valeurs des formulaires //
 
     let firstNameValue= document.getElementById("firstName").value;
     let lastNameValue = document.getElementById("lastName").value;
-    let addressValue = document.getElementById("address").value;  
     let cityValue = document.getElementById("city").value;
     let emailValue = document.getElementById("email").value;
 
@@ -138,24 +141,20 @@ let form = document.querySelector("form")
     if(resultatMail && resultatText == true){
 
       // Mettre les valeurs récupérées dans un objet //
-  
-      let contact = new Object();
 
-      contact.firstName = firstNameValue;
-      contact.lastName = lastNameValue;
-      contact.address = addressValue;
-      contact.city = cityValue;
-      contact.email = emailValue;
-
-      console.log(contact)
-
+      
+      const formData = new FormData(form);
+      const formValue  = [...formData.entries()];
+      console.log(formValue);
+      const entries = new Map (formValue);
+      let contact = Object.fromEntries(entries);
 
       let products = arrayParsed.map(i => i.id);
     
       console.log(products);
       let order = {
         "contact": contact, 
-        "products": products,
+        "products": products
       }
 
       console.log(JSON.stringify(order))
