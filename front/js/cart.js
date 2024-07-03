@@ -1,5 +1,10 @@
 let arrayJSON = localStorage.getItem("array");
+console.log(arrayJSON)
 let arrayParsed = JSON.parse(arrayJSON);
+let URL = "http://localhost:3000/api/products/order";
+console.log(arrayParsed)
+
+
 
 //::::::::: Récupérer les éléments du DOM :::::::::://
 
@@ -29,7 +34,7 @@ async function cart() {
                   </div>
                   <div class="cart__item__content__settings">
                     <div class="cart__item__content__settings__quantity">
-                      <p>Qté : </p>
+                    <p>Qté : ${i.quantity}</p>
                       <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${i.quantity}">
                     </div>
                     <div class="cart__item__content__settings__delete">
@@ -45,6 +50,8 @@ async function cart() {
   await displayItems();
 
   console.table(arrayParsed);
+
+  
 
   // Afficher le total des articles et des prix
 
@@ -105,52 +112,87 @@ cart();
 
                 //:::::::::::::::::::::::::::::: Partie 3: le formulaire ::::::::::::::::::::::::::::://
 
-let order = document.getElementById("order");
+let form = document.querySelector("form")
 
-order.addEventListener("click", (event) =>{
+// Fonction d'envoie des données du formulaire et post de l'API
 
-  event.preventDefault();
+  form.addEventListener("submit", async (event) =>{
 
-// On récupére les valeurs des formulaires //
+    event.preventDefault();
 
-  let firstNameValue= document.getElementById("firstName").value;
-  let lastNameValue = document.getElementById("lastName").value;
-  let addressValue = document.getElementById("address").value;  
-  let cityValue = document.getElementById("city").value;
-  let emailValue = document.getElementById("email").value;
+    // On récupére les valeurs des formulaires //
 
-// Régles de validation //
+    let firstNameValue= document.getElementById("firstName").value;
+    let lastNameValue = document.getElementById("lastName").value;
+    let addressValue = document.getElementById("address").value;  
+    let cityValue = document.getElementById("city").value;
+    let emailValue = document.getElementById("email").value;
 
-  let regexMail = new RegExp("[a-z0-9._-]+@[a-z0-9._-]+\.[a-z0-9._-]+");
-  let regexText = new RegExp("[a-z.-]");
-  let resultatMail = regexMail.test(emailValue);
-  let resultatText = regexText.test(firstNameValue, lastNameValue, addressValue, cityValue);
+    // Régles de validation //
 
-  if(resultatMail && resultatText == true){
+    let regexMail = new RegExp("[a-z0-9._-]+@[a-z0-9._-]+\.[a-z0-9._-]+");
+    let regexText = new RegExp("[a-z.-]");
+    let resultatMail = regexMail.test(emailValue);
+    let resultatText = regexText.test(firstNameValue, lastNameValue, cityValue);
 
-  // Mettre les valeurs récupérées dans un objet //
+    if(resultatMail && resultatText == true){
+
+      // Mettre les valeurs récupérées dans un objet //
   
-  let contact = new Object();
+      let contact = new Object();
 
-  contact.firstName = firstNameValue;
-  contact.lastName = lastNameValue;
-  contact.address = addressValue;
-  contact.city = cityValue;
-  contact.email = emailValue;
+      contact.firstName = firstNameValue;
+      contact.lastName = lastNameValue;
+      contact.address = addressValue;
+      contact.city = cityValue;
+      contact.email = emailValue;
 
-  // Envoie du contact dans le local storage //
+      console.log(contact)
 
-  let contactStringed = JSON.stringify(contact);
-  localStorage.setItem("contact", contactStringed);
 
-  // Ouverture de la page confirmation //
+      let products = arrayParsed.map(i => i.id);
+    
+      console.log(products);
+      let order = {
+        "contact": contact, 
+        "products": products,
+      }
 
-  window.location.replace("confirmation.html");
+      console.log(JSON.stringify(order))
+      
 
-  }else{
-    alert("Format invalide! Veuillez vérifier le formulaire.");
+      // Ouverture de la page confirmation //
+
+      // Envoi des données au serveur via une requête POST //
+
+
+      try {
+        let response = await fetch(URL, {
+          method: "POST",
+          body: JSON.stringify(order),
+          headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+          },
+
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP ! Statut : ${response.status}`);
+        }
+        let responseData = await response.json();
+        let orderId = responseData.orderId;
+        console.log(orderId)
+        let orderIdStringed = JSON.stringify(orderId)
+        localStorage.setItem("orderId", orderIdStringed)
+    
+        // Redirection vers la page de confirmation avec l'ID de commande
+          window.location.href = `confirmation.html?orderId=${orderId}`;
+      }catch (error) {
+        console.error("Erreur lors de l'envoi des données au serveur :", error);
+        alert("Une erreur est survenue lors de la commande. Veuillez réessayer plus tard.");
+      }
+
+    }else{
+      alert("Veuillez remplir correctement tous les champs du formulaire.");
     }
-  }
-)
-
-
+  })

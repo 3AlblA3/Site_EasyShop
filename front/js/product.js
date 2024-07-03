@@ -9,7 +9,7 @@ let itemColor = document.getElementById("colors");
 let button = document.getElementById("addToCart");
 let arrayStringed =[]
 
-//::::::::::Afficher le produit choisi précédemment::::::::::::::::://
+//::::::::::::::::Afficher le produit choisi précédemment::::::::::::::::://
 
 async function fetchProduct(){
     try{
@@ -61,9 +61,10 @@ async function fetchProduct(){
             //Vérifier que l'artile ne soit pas déjà présent dans le panier, et que les quantité et couleur soient bien choisies
 
             const indexID = array.findIndex((obj) => obj.id === objet.id);
-            const indexColor = array.findIndex((obj) => obj.color === objet.color)
+            const indexColor = array.findIndex((obj) => obj.color === objet.color); 
 
-            //renvoie l'index du premier élément du tableau qui satisfait une condition donnée par une fonction
+            //renvoie l'index du premier élément du tableau qui satisfait une condition donnée par une fonction, 
+            // S'il ne trouve pas d'éléments, renverra la valeur -1
 
             switch(true){
                 case(indexID !== -1 && indexColor !== -1 && quantity !== 0 ):
