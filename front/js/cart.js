@@ -1,8 +1,6 @@
 let arrayJSON = localStorage.getItem("array");
-console.log(arrayJSON)
 let arrayParsed = JSON.parse(arrayJSON);
 let URLOrder = "http://localhost:3000/api/products/order";
-console.log(arrayParsed)
 let URL = "http://localhost:3000/api/products/";
 
 
@@ -26,17 +24,13 @@ async function cart() {
     const response = await fetch(URL);
     const data = await response.json();
     
-    //On cherche les prix dans l'API, et on les remets dans notre tableau d'objets 
-
-    arrayParsed.forEach(i => {
-      let fetchedProduct = data.find(fetchedProduct => fetchedProduct._id === i.id);
-      if (fetchedProduct) {
-        i.price = product.price;
+    // Mise à jour des prix dans arrayParsed en fonction des données de l'API
+    arrayParsed.forEach(item => {
+      let matchedProduct = data.find(matchedProduct => matchedProduct._id === item.id);
+      if (matchedProduct) {
+        item.price = matchedProduct.price;
       }
     });
-
-
-
 
     async function displayItems() {
 
@@ -64,17 +58,10 @@ async function cart() {
                 </div>
               </article>`;
       cartItems.innerHTML += html;
-
       }
     }
-   
-
     await displayItems();
-
-    console.table(arrayParsed);
-
-  
-
+ 
     // Afficher le total des articles et des prix
 
     function displayTotals() {
@@ -169,28 +156,22 @@ const form = document.querySelector("form")
       
       const formData = new FormData(form);
       const formValue  = [...formData.entries()];
-      console.log(formValue);
 
       // Convertir le tableau de données en obj
 
       const entries = new Map (formValue);
       let contact = Object.fromEntries(entries);
-
       let products = arrayParsed.map(i => i.id);
-      console.log(products);
    
       let order = {
         "contact": contact, 
         "products": products
       }
-
-      console.log(JSON.stringify(order))
-      
+    
 
       // Ouverture de la page confirmation //
 
       // Envoi des données au serveur via une requête POST //
-
 
       try {
         let PostResponse = await fetch(URLOrder, {
@@ -207,7 +188,6 @@ const form = document.querySelector("form")
         }
         let responseData = await PostResponse.json();
         let orderId = responseData.orderId;
-        console.log(orderId)
         let orderIdStringed = JSON.stringify(orderId)
         localStorage.setItem("orderId", orderIdStringed)
     
